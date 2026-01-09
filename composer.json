@@ -1,0 +1,7 @@
+{
+    "name": "simple/invoice-generator",
+    "description": "A simple invoice generator",
+    "require": {
+        "dompdf/dompdf": "^2.0"
+    }
+}
