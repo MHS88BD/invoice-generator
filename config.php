@@ -5,7 +5,7 @@
 define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'invoice-app');
 define('DB_USER', 'invoice-user');
-define('DB_PASS', '0k9eqHAuilT389QQyOj1');
+define('DB_PASS', 'ws5j7DKlKa0FQo1n7rT3');
 
 try {
     // Connect to MySQL
