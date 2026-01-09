@@ -1,16 +1,16 @@
 // assets/script.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     // --- Login Logic ---
     const sendOtpBtn = document.getElementById('send-otp-btn');
     const verifyOtpBtn = document.getElementById('verify-otp-btn');
-    
+
     if (sendOtpBtn) {
         sendOtpBtn.addEventListener('click', async () => {
             const mobile = document.getElementById('mobile').value;
             const errorMsg = document.getElementById('error-msg');
-            
+
             if (!mobile) {
                 errorMsg.textContent = "Please enter a mobile number.";
                 errorMsg.classList.remove('hidden');
@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch('/api/send-otp', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mobile })
                 });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     document.getElementById('step-mobile').classList.add('hidden');
                     document.getElementById('step-otp').classList.remove('hidden');
@@ -37,6 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {
                 console.error(err);
+                alert("Something went wrong. Please check your internet or server logs.\n" + err.message);
+                // Try to see if it was a non-JSON response
+                errorMsg.textContent = "Server Error. Check console.";
+                errorMsg.classList.remove('hidden');
             }
         });
 
@@ -54,11 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch('/api/verify-otp', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mobile, otp })
                 });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     window.location.href = data.redirect;
                 } else {
@@ -75,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Invoice Editor Logic ---
     const invoiceTable = document.getElementById('items-table-body');
     const addItemBtn = document.getElementById('add-item-btn');
-    
+
     if (invoiceTable) {
         // Initial Calculation
         calculateTotals();
@@ -129,53 +133,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Save & Download
         document.getElementById('download-pdf-btn').addEventListener('click', async () => {
-             // 1. Gather Data
-             const invoiceData = {
-                 invoice_number: document.getElementById('invoice-number').value,
-                 date: document.getElementById('invoice-date').value,
-                 sender: {
-                     mobile: document.getElementById('sender-mobile').value,
-                     email: document.getElementById('sender-email').value,
-                     address: document.getElementById('sender-address').value
-                 },
-                 recipient: {
-                     name: document.getElementById('recipient-name').value,
-                     email: document.getElementById('recipient-email').value,
-                     mobile: document.getElementById('recipient-mobile').value,
-                     address: document.getElementById('recipient-address').value
-                 },
-                 items: Array.from(document.querySelectorAll('#items-table-body tr')).map(row => ({
-                     desc: row.querySelector('.item-desc').value,
-                     qty: row.querySelector('.item-qty').value,
-                     rate: row.querySelector('.item-rate').value,
-                     amount: row.querySelector('.item-amount').textContent
-                 })),
-                 subtotal: document.getElementById('subtotal-display').textContent,
-                 tax_rate: document.getElementById('tax-input').value,
-                 tax_amount: document.getElementById('tax-amount-display').textContent,
-                 total: document.getElementById('total-display').textContent
-             };
+            // 1. Gather Data
+            const invoiceData = {
+                invoice_number: document.getElementById('invoice-number').value,
+                date: document.getElementById('invoice-date').value,
+                sender: {
+                    mobile: document.getElementById('sender-mobile').value,
+                    email: document.getElementById('sender-email').value,
+                    address: document.getElementById('sender-address').value
+                },
+                recipient: {
+                    name: document.getElementById('recipient-name').value,
+                    email: document.getElementById('recipient-email').value,
+                    mobile: document.getElementById('recipient-mobile').value,
+                    address: document.getElementById('recipient-address').value
+                },
+                items: Array.from(document.querySelectorAll('#items-table-body tr')).map(row => ({
+                    desc: row.querySelector('.item-desc').value,
+                    qty: row.querySelector('.item-qty').value,
+                    rate: row.querySelector('.item-rate').value,
+                    amount: row.querySelector('.item-amount').textContent
+                })),
+                subtotal: document.getElementById('subtotal-display').textContent,
+                tax_rate: document.getElementById('tax-input').value,
+                tax_amount: document.getElementById('tax-amount-display').textContent,
+                total: document.getElementById('total-display').textContent
+            };
 
-             // Validation
-             if(!invoiceData.sender.mobile || !invoiceData.sender.email || !invoiceData.recipient.mobile || !invoiceData.recipient.email) {
-                 alert("Sender and Recipient Mobile & Email are Mandatory.");
-                 return;
-             }
-             
-             // 2. Save
-             const res = await fetch('/api/save-invoice', {
-                 method: 'POST',
-                 headers: {'Content-Type': 'application/json'},
-                 body: JSON.stringify(invoiceData)
-             });
-             const data = await res.json();
+            // Validation
+            if (!invoiceData.sender.mobile || !invoiceData.sender.email || !invoiceData.recipient.mobile || !invoiceData.recipient.email) {
+                alert("Sender and Recipient Mobile & Email are Mandatory.");
+                return;
+            }
 
-             if (data.success) {
-                 // 3. Trigger Download
-                 window.location.href = `/download-pdf?id=${data.invoice_id}`;
-             } else {
-                 alert("Error saving invoice: " + data.message);
-             }
+            // 2. Save
+            const res = await fetch('/api/save-invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(invoiceData)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // 3. Trigger Download
+                window.location.href = `/download-pdf?id=${data.invoice_id}`;
+            } else {
+                alert("Error saving invoice: " + data.message);
+            }
         });
     }
 });

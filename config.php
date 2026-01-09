@@ -50,7 +50,14 @@ try {
     ) ENGINE=InnoDB");
 
 } catch(PDOException $e) {
-    die("Database connection failed: " . $e->getMessage() . "<br>Please check `config.php` details.");
+    // If it's an API request, return JSON
+    if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => "DB Connection Error: " . $e->getMessage()]);
+        exit;
+    }
+    // Otherwise show text
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Start Session
